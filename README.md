@@ -153,7 +153,7 @@ Barebones GLTFLoader with pixellated styling ```.html``` file:
 </html>
 ```
 Results:
-![No Shadows](README/screenshot3.pnh)
+![No Shadows](README/screenshot3.png)
 
 ## Enhancing the scene:
 
