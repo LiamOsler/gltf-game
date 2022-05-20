@@ -122,13 +122,13 @@ Barebones GLTFLoader with pixellated styling ```.html``` file:
 <script src="scripts/three.js"></script>
 <script src="scripts/GLTFLoader.js"></script>
 <script>
-    const threeDOM = document.getElementById("three-area");
+    const threeDOM = document.getElementById( "three-area" );
     const scene = new THREE.Scene();
 
     const loader = new THREE.GLTFLoader();
     loader.load( 'assets/world.gltf', function ( gltf ) {
         const model = gltf.scene;
-        scene.add(model);
+        scene.add( model );
     } );
 
     const resolution = {x: 160, y: 144};
@@ -152,10 +152,31 @@ Barebones GLTFLoader with pixellated styling ```.html``` file:
 </script>
 </html>
 ```
+Results:
+![Movement Mesh naming scheme](README/screenshot3.PNG)
+
+## Enhancing the scene:
 
 ### Adding shadows:
 
+Add ```castShadow = true``` and ```receiveShadow = true``` to the all of the meshes in the GLTF file:
 ```js
+    loader.load( 'assets/world.gltf', function ( gltf ) {
+        const model = gltf.scene;
 
+        model.traverse( function( node ) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+        } );
+
+        scene.add( model );
+    } );
 ```
+
+Ensure  ```renderer.shadowMap.enabled = true```
+
+Results:
+![Movement Mesh naming scheme](README/screenshot4.PNG)
+
+
 
