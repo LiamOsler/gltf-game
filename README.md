@@ -8,12 +8,14 @@ Development repository for itch.io Mini Jame Gam #10
 
 ## Description:
 
+It's a game?
 
 ## Libraries and Assets:
 
 ### Graphics:
 
-[three.js](http://threejs.org)
+[three.js](http://threejs.org):
+- GLTFLoader
 
 ### Physics:
 [cannon.js](https://schteppe.github.io/cannon.js/)
