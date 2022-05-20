@@ -153,7 +153,7 @@ Barebones GLTFLoader with pixellated styling ```.html``` file:
 </html>
 ```
 Results:
-![Movement Mesh naming scheme](README/screenshot3.PNG)
+![No Shadows](README/screenshot3.PNG)
 
 ## Enhancing the scene:
 
@@ -176,7 +176,7 @@ Add ```castShadow = true``` and ```receiveShadow = true``` to the all of the mes
 Ensure  ```renderer.shadowMap.enabled = true```
 
 Results:
-![Movement Mesh naming scheme](README/screenshot4.PNG)
+![Shadows Enabled](README/screenshot4.PNG)
 
 
 
