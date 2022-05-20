@@ -39,3 +39,10 @@ https://elegantcrow.itch.io/psx-retro-style-tree-pack
 
 ## Notes / Requirements:
 Viewing the game locally using the index.html file requires either CORS being allowed by the browser (alternatively, host the repo locally with http)
+
+## Details:
+
+### Model/Mesh/Object naming scheme:
+![Model naming scheme](README/naming_slide1.PNG)
+![Mesh naming scheme](README/naming_slide2.PNG)
+![Movement Mesh naming scheme](README/naming_slide3.PNG)
