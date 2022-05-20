@@ -178,5 +178,36 @@ Ensure  ```renderer.shadowMap.enabled = true```
 Results:
 ![Shadows Enabled](README/screenshot4.png)
 
+### Adding ambient light:
 
+```js
+    const ambientLight = new THREE.AmbientLight( 0xffffff );
+    ambientLight.intensity = 4;
+    scene.add( ambientLight );
+```
+Results:
+![Ambient Light Enabled](README/screenshot5.png)
 
+### Adding fog:
+
+Slightly pink fog:
+```js
+    scene.fog = new THREE.Fog(0xffeeff, 1, 100);
+```
+
+Results with ambient lighting enabled:
+![Fog Enabled](README/screenshot6.png)
+
+Results with ambient lighting disabled:
+![Fog Enabled](README/screenshot7.png)
+
+Alternatively, similar results can be achieved with hemisphere lighting, giving a more realistic sunlight effect as faces have distinct brightness based on their orientation:
+```js
+    const light = new THREE.HemisphereLight( 0xffeeff, 0x080820, 2 );
+    light.castShadow = true;
+    scene.add( light );
+```
+Results with hemisphere light and fog enabled, no ambient lighting:
+![Hemisphere Light, Fog Enabled](README/screenshot8.png)
+Results with hemisphere light, no ambient lighting or fog:
+![Hemisphere Light, Fog Disabled](README/screenshot9.png)
