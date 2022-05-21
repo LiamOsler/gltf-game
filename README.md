@@ -364,4 +364,88 @@ Vehicle controls:
     }
 ```
 
+Animating the models with THREE with cannon physics:
 
+Define a list of the cars, with their particular details:
+```js
+    let carList = [
+                    {
+                        name: "Player",
+                        mass: 5000
+                    },
+                    {
+                        name: "Car1",
+                        mass: 5000
+                    },
+                    {
+                        name: "Car2",
+                        mass: 5000
+                    },
+                    {
+                        name: "Car3",
+                        mass: 5000
+                    },
+                    {
+                        name: "Car4",
+                        mass: 5000
+                    },
+                    {
+                        name: "Car5",
+                        mass: 5000
+                    },
+                    {
+                        name: "Police",
+                        mass: 5000
+                    },
+                    {
+                        name: "Taxi",
+                        mass: 5000
+                    }
+                ];
+```
+
+And define an array of the same length for keeping a collection of each vehicle's objects:
+```js
+    let carCollections = [...Array(carList.length)].map(e => Array(0));
+```
+
+During the .gltf load:
+```js
+    let loadStatus = false;
+    loader.load( 'http://localhost:8000/test.gltf', function ( gltf ) {
+        const model = gltf.scene;
+        for( child of model.children ){
+            if( child.name.search( "Car" ) == 0){
+                for( let i = 0; i < carList.length; i++ ){
+                    let carName = carList[i];
+                    if(child.name.search( "Car" + carName ) == 0){
+                        carCollections[i].push( child );
+                        carCollections[i].name = carName;
+                    }
+                }
+            }
+        }
+        loadStatus = true;
+    } );
+```
+
+Animating the movement:
+```js
+    function animate() {
+
+        requestAnimationFrame( animate );
+
+        if( loadStatus == true ){ 
+            for(let car of carCollections){
+                if(car == carCollections[0]){
+                    for(let item of car){
+                        item.quaternion.copy(vehicle.chassisBody.quaternion);
+                        item.position.x = vehicle.chassisBody.position.x;
+                        item.position.y = vehicle.chassisBody.position.y;
+                        item.position.z = vehicle.chassisBody.position.z;
+                    }
+                }
+            }
+        }
+    }
+```
