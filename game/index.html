@@ -1,49 +1,78 @@
-<!-- Author information: Liam Osler, Brian Wo -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JameGam</title>
+    <title>GLTFLoader</title>
     <style>
         body { 
             margin: 0;
-            color: white;
-
         }
         
         #three-area {
-            position: relative;
-            z-index: 0;
-            /* Chunky pixel rendering: */
             image-rendering: pixelated;
             zoom: 4;
         }
-
-        #background-area {
-            position: relative;
-            z-index: 0;
-        }
-    
-        #overlay-area {
-            position: absolute;           
-        }
-
     </style>
 </head>
 
 <body>
-    <div id="background-area">
-        <div id="three-area"></div>
-        <div id="overlay-area"></div>
-    </div>
-    
-    <script src = "scripts/three.js"></script>
-    <script src = "scripts/GLTFLoader.js"></script>
-    <script src = "scripts/cannon.js"></script>
-
-    <script>
-    </script>
+    <div id="three-area"></div>
 </body>
+
+<script src="scripts/three.js"></script>
+<script src="scripts/GLTFLoader.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+    const threeDOM = document.getElementById("three-area");
+    const scene = new THREE.Scene();
+
+    const loader = new THREE.GLTFLoader();
+    loader.load( 'assets/world.gltf', function ( gltf ) {
+        const model = gltf.scene;
+
+        model.traverse( function( node ) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+
+        } );
+
+        scene.add( model );
+    } );
+
+    // const ambientLight = new THREE.AmbientLight( 0xffffff );
+    // ambientLight.intensity = 4;
+    // scene.add( ambientLight );
+
+    const light = new THREE.HemisphereLight( 0xffeeff, 0x080820, 2 );
+    light.castShadow = true;
+    scene.add( light );
+    // scene.fog = new THREE.Fog(0xffeeff, 1, 100);
+
+    const resolution = {x: 160, y: 144};
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize( resolution.x, resolution.y );
+    renderer.physicallyCorrectLights = true; //Ensures lights match Blender renders
+    renderer.setClearColor( 0xffffff, 0);
+    renderer.shadowMap.enabled = true;
+    threeDOM.appendChild( renderer.domElement );
+
+    const camera = new THREE.PerspectiveCamera( 45, resolution.x/resolution.y, 1, 200 );
+    camera.up.set( 0, 0, 1 );
+    camera.position.set( 12, 12, 10 );
+    camera.lookAt( 0, 0, 0 );
+
+    const controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+    controls.update();
+
+    function animate() {
+        requestAnimationFrame( animate );
+        renderer.render( scene, camera );
+    }
+
+    animate();
+</script>
 </html>
