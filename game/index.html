@@ -21,11 +21,109 @@
     <div id="three-area"></div>
 </body>
 
+<script src="scripts/cannon.js"></script>
 <script src="scripts/three.js"></script>
 <script src="scripts/GLTFLoader.js"></script>
 <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
 <script>
+    //Cannon settings:
+    var world = new CANNON.World();
+    world.broadphase = new CANNON.SAPBroadphase(world);
+    world.gravity.set(0, 0, -10);
+    world.defaultContactMaterial.friction = 0;
+
+    var groundBody = new CANNON.Body({
+        mass: 0 // mass: 0 makes the body static
+    });
+    var groundShape = new CANNON.Plane();
+    groundBody.addShape(groundShape);
+    world.addBody(groundBody);
+
+    var groundMaterial = new CANNON.Material("groundMaterial");
+    var wheelMaterial = new CANNON.Material("wheelMaterial");
+    var wheelGroundContactMaterial = window.wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
+        friction: 1.5,
+        restitution: .1,
+        contactEquationStiffness: 1000
+    });
+
+    var chassisShape;
+    chassisShape = new CANNON.Box(new CANNON.Vec3(2, 1,0.5));
+    var chassisBody = new CANNON.Body({ mass: 500 });
+    chassisBody.addShape(chassisShape);
+    chassisBody.position.set(0, 0, 1);
+
+    var options = {
+                    radius: 0.5,
+                    directionLocal: new CANNON.Vec3(0, 0, -1),
+                    suspensionStiffness: 43,
+                    suspensionRestLength: 0.3,
+                    frictionSlip: 5,
+                    dampingRelaxation: 2.9,
+                    dampingCompression: 3,
+                    maxSuspensionForce: 1000,
+                    rollInfluence:  0.01,
+                    axleLocal: new CANNON.Vec3(0, 1, 0),
+                    chassisConnectionPointLocal: new CANNON.Vec3(1, 1, 0),
+                    maxSuspensionTravel: 0.1,
+                    customSlidingRotationalSpeed: -30,
+                    useCustomSlidingRotationalSpeed: true
+                };
+
+    vehicle = new CANNON.RaycastVehicle({
+        chassisBody: chassisBody,
+    });
+
+    options.chassisConnectionPointLocal.set(1, 1, 0);
+    vehicle.addWheel(options);
+
+    options.chassisConnectionPointLocal.set(1, -1, 0);
+    vehicle.addWheel(options);
+
+    options.chassisConnectionPointLocal.set(-1, 1, 0);
+    vehicle.addWheel(options);
+
+    options.chassisConnectionPointLocal.set(-1, -1, 0);
+    vehicle.addWheel(options);
+
+    vehicle.addToWorld(world);
+
+    var wheelBodies = [];
+    for(var i=0; i<vehicle.wheelInfos.length; i++){
+        var wheel = vehicle.wheelInfos[i];
+        var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, wheel.radius / 2, 20);
+        var wheelBody = new CANNON.Body({ mass: 20 });
+        var q = new CANNON.Quaternion();
+        q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
+        wheelBody.addShape(cylinderShape, new CANNON.Vec3(), q);
+        wheelBodies.push(wheelBody);
+    }
+
+    world.addEventListener('postStep', function(){
+        for (var i = 0; i < vehicle.wheelInfos.length; i++) {
+            vehicle.updateWheelTransform(i);
+            var t = vehicle.wheelInfos[i].worldTransform;
+            wheelBodies[i].position.copy(t.position);
+            wheelBodies[i].quaternion.copy(t.quaternion);
+        }
+    });
+
+    var fixedTimeStep = 1.0 / 60.0;
+    var maxSubSteps = 3;
+
+    var lastTime;
+    (function simloop(time){
+    requestAnimationFrame(simloop);
+    if(lastTime !== undefined){
+        var dt = (time - lastTime) / 1000;
+        world.step(fixedTimeStep, dt, maxSubSteps);
+    }
+    lastTime = time;
+    })();
+
+
+    //Three settings:
     const threeDOM = document.getElementById("three-area");
     const scene = new THREE.Scene();
 
@@ -47,7 +145,6 @@
     // scene.add( ambientLight );
 
     const light = new THREE.HemisphereLight( 0xffeeff, 0x080820, 2 );
-    light.castShadow = true;
     scene.add( light );
     // scene.fog = new THREE.Fog(0xffeeff, 1, 100);
 
