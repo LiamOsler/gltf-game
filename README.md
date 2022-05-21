@@ -449,3 +449,47 @@ Animating the movement:
         }
     }
 ```
+
+Moving the wheels around:
+```js
+    for(let car of carCollections){
+        if(car == carCollections[0]){
+            for(let item of car){
+                item.quaternion.copy(vehicle.chassisBody.quaternion);
+                item.position.x = vehicle.chassisBody.position.x;
+                item.position.y = vehicle.chassisBody.position.y;
+                item.position.z = vehicle.chassisBody.position.z;
+
+                if(item.name == "CarPlayerWheel1"){
+                    item.quaternion.copy(wheelBodies[0].quaternion);
+                    item.position.x = wheelBodies[0].position.x;
+                    item.position.y = wheelBodies[0].position.y;
+                    item.position.z = wheelBodies[0].position.z;
+
+                }
+                
+                if(item.name == "CarPlayerWheel2"){
+                    item.quaternion.copy(wheelBodies[1].quaternion);
+                    item.position.x = wheelBodies[1].position.x;
+                    item.position.y = wheelBodies[1].position.y;
+                    item.position.z = wheelBodies[1].position.z;
+                }
+                
+                if(item.name == "CarPlayerWheel3"){
+                    item.quaternion.copy(wheelBodies[2].quaternion);
+                    item.position.x = wheelBodies[2].position.x;
+                    item.position.y = wheelBodies[2].position.y;
+                    item.position.z = wheelBodies[2].position.z;
+                }
+                
+                if(item.name == "CarPlayerWheel4"){
+                    item.quaternion.copy(wheelBodies[3].quaternion);
+                    item.position.x = wheelBodies[3].position.x;
+                    item.position.y = wheelBodies[3].position.y;
+                    item.position.z = wheelBodies[3].position.z;
+                }
+
+            }
+        }
+    }
+```
