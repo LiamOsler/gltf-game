@@ -59,7 +59,7 @@
 
 
     var chassisShape;
-    chassisShape = new CANNON.Box(new CANNON.Vec3(2.65, 2,.5));
+    chassisShape = new CANNON.Box(new CANNON.Vec3(2.65, 1.5,.5));
     var chassisBody = new CANNON.Body({ mass: 500 });
     chassisBody.addShape(chassisShape);
     chassisBody.position.set(0, 0, 10);
@@ -102,7 +102,7 @@
     var wheelBodies = [];
     for(var i=0; i<vehicle.wheelInfos.length; i++){
         var wheel = vehicle.wheelInfos[i];
-        var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, .4, 20);
+        var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, .5, 20);
         var wheelBody = new CANNON.Body({ mass: 10 });
         var q = new CANNON.Quaternion();
         q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
@@ -319,8 +319,18 @@
     camera.position.set( 12, 12, 10 );
     camera.lookAt( 0, 0, 0 );
 
-    const controls = new THREE.OrbitControls( camera, renderer.domElement );
+    function cameraSet(){
+        let playerMesh = carCollections[0][0];
+        var relativeCameraOffset = new THREE.Vector3(-20,0,10);
+        var cameraOffset = relativeCameraOffset.applyMatrix4( playerMesh.matrixWorld );
 
+        camera.position.x = cameraOffset.x;
+        camera.position.y = cameraOffset.y;
+        camera.position.z = cameraOffset.z;
+        camera.lookAt( playerMesh.position );
+    }
+
+    const controls = new THREE.OrbitControls( camera, renderer.domElement );
     controls.update();
 
     function animate() {
@@ -383,6 +393,7 @@
             }
         }
 
+        cameraSet();
         renderer.render( scene, camera );
 
     }
