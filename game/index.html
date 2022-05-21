@@ -33,12 +33,7 @@
     world.gravity.set(0, 0, -10);
     world.defaultContactMaterial.friction = 0;
 
-    var groundBody = new CANNON.Body({
-        mass: 0 // mass: 0 makes the body static
-    });
-    var groundShape = new CANNON.Plane();
-    groundBody.addShape(groundShape);
-    world.addBody(groundBody);
+
 
     var groundMaterial = new CANNON.Material("groundMaterial");
     var wheelMaterial = new CANNON.Material("wheelMaterial");
@@ -49,14 +44,13 @@
     });
 
     var chassisShape;
-    chassisShape = new CANNON.Box(new CANNON.Vec3(2, 1,0.5));
+    chassisShape = new CANNON.Box(new CANNON.Vec3(5, 4,0.5));
     var chassisBody = new CANNON.Body({ mass: 500 });
     chassisBody.addShape(chassisShape);
-    chassisBody.position.set(0, 0, 1);
-    chassisBody.angularVelocity.set(0, 0, 0.5);
+    chassisBody.position.set(0, 0, 10);
 
     var options = {
-                    radius: 0.5,
+                    radius: 1,
                     directionLocal: new CANNON.Vec3(0, 0, -1),
                     suspensionStiffness: 43,
                     suspensionRestLength: 0.3,
@@ -76,16 +70,16 @@
         chassisBody: chassisBody,
     });
 
-    options.chassisConnectionPointLocal.set(1, 1, 0);
+    options.chassisConnectionPointLocal.set(1.95, 1.2, .3);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(1, -1, 0);
+    options.chassisConnectionPointLocal.set(1.95, -1.2, .3);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(-1, 1, 0);
+    options.chassisConnectionPointLocal.set(-1.95, 1.2, .3);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(-1, -1, 0);
+    options.chassisConnectionPointLocal.set(-1.95, -1.2, .3);
     vehicle.addWheel(options);
 
     vehicle.addToWorld(world);
@@ -94,7 +88,7 @@
     for(var i=0; i<vehicle.wheelInfos.length; i++){
         var wheel = vehicle.wheelInfos[i];
         var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, wheel.radius / 2, 20);
-        var wheelBody = new CANNON.Body({ mass: 20 });
+        var wheelBody = new CANNON.Body({ mass: 1 });
         var q = new CANNON.Quaternion();
         q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
         wheelBody.addShape(cylinderShape, new CANNON.Vec3(), q);
@@ -109,6 +103,7 @@
             wheelBodies[i].quaternion.copy(t.quaternion);
         }
     });
+
     
     document.onkeydown = handler;
     document.onkeyup = handler;
@@ -160,6 +155,13 @@
         }
     }
 
+    var groundBody = new CANNON.Body({
+        mass: 0 // mass: 0 makes the body static
+    });
+    var groundShape = new CANNON.Plane();
+    groundBody.addShape(groundShape);
+    world.addBody(groundBody);
+
     var fixedTimeStep = 1.0 / 60.0;
     var maxSubSteps = 3;
 
@@ -178,22 +180,70 @@
     const threeDOM = document.getElementById("three-area");
     const scene = new THREE.Scene();
 
+    let carList= [
+                {
+                    name: "Player",
+                    mass: 5000
+                },
+                {
+                    name: "Car1",
+                    mass: 5000
+                },
+                {
+                    name: "Car2",
+                    mass: 5000
+                },
+                {
+                    name: "Car3",
+                    mass: 5000
+                },
+                {
+                    name: "Car4",
+                    mass: 5000
+                },
+                {
+                    name: "Car5",
+                    mass: 5000
+                },
+                {
+                    name: "Police",
+                    mass: 5000
+                },
+                {
+                    name: "Taxi",
+                    mass: 5000
+                }
+            ];
+    let carCollections = [...Array(carList.length)].map(e => Array(0));
+
     const loader = new THREE.GLTFLoader();
     loader.load( 'assets/world.gltf', function ( gltf ) {
         const model = gltf.scene;
 
+        for(child of model.children){
+            
+            if(child.name.search("Car") == 0){
+                for(let i = 0; i < carList.length; i++){
+                    let carName = carList[i].name;
+                    if(child.name.search("Car" + carName) == 0){
+                        carCollections[i].push(child);
+                        carCollections[i].name = carName;
+                    }
+                }
+            }
+        }
         model.traverse( function( node ) {
             node.castShadow = true;
             node.receiveShadow = true;
 
         } );
-
         scene.add( model );
+
     } );
 
-    // const ambientLight = new THREE.AmbientLight( 0xffffff );
-    // ambientLight.intensity = 4;
-    // scene.add( ambientLight );
+    const ambientLight = new THREE.AmbientLight( 0xffffff );
+    ambientLight.intensity = 4;
+    scene.add( ambientLight );
 
     const light = new THREE.HemisphereLight( 0xffeeff, 0x080820, 2 );
     scene.add( light );
@@ -217,8 +267,53 @@
     controls.update();
 
     function animate() {
+
+
         requestAnimationFrame( animate );
+
+        for(let car of carCollections){
+            if(car == carCollections[0]){
+                for(let item of car){
+                    item.quaternion.copy(vehicle.chassisBody.quaternion);
+                    item.position.x = vehicle.chassisBody.position.x;
+                    item.position.y = vehicle.chassisBody.position.y;
+                    item.position.z = vehicle.chassisBody.position.z;
+
+                    if(item.name == "CarPlayerWheel1"){
+                        item.quaternion.copy(wheelBodies[0].quaternion);
+                        item.position.x = wheelBodies[0].position.x;
+                        item.position.y = wheelBodies[0].position.y;
+                        item.position.z = wheelBodies[0].position.z;
+
+                    }
+                    
+                    if(item.name == "CarPlayerWheel2"){
+                        item.quaternion.copy(wheelBodies[1].quaternion);
+                        item.position.x = wheelBodies[1].position.x;
+                        item.position.y = wheelBodies[1].position.y;
+                        item.position.z = wheelBodies[1].position.z;
+                    }
+                    
+                    if(item.name == "CarPlayerWheel3"){
+                        item.quaternion.copy(wheelBodies[2].quaternion);
+                        item.position.x = wheelBodies[2].position.x;
+                        item.position.y = wheelBodies[2].position.y;
+                        item.position.z = wheelBodies[2].position.z;
+                    }
+                    
+                    if(item.name == "CarPlayerWheel4"){
+                        item.quaternion.copy(wheelBodies[3].quaternion);
+                        item.position.x = wheelBodies[3].position.x;
+                        item.position.y = wheelBodies[3].position.y;
+                        item.position.z = wheelBodies[3].position.z;
+                    }
+
+                }
+            }
+        }
+
         renderer.render( scene, camera );
+
     }
 
     animate();
