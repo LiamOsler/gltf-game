@@ -8,6 +8,7 @@
     <style>
         body { 
             margin: 0;
+	    background-color: black;
         }
         
         #three-area {
@@ -130,15 +131,23 @@
 
         switch(event.keyCode){
 
-        case 38: // forward
+	// forward
+
+        case 38: // up arrow
+	case 87: // w
             vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
             vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
             break;
 
-        case 40: // backward
+	// backward
+
+        case 40: // down arrow
+	case 83: // s
             vehicle.applyEngineForce(up ? 0 : maxForce, 2);
             vehicle.applyEngineForce(up ? 0 : maxForce, 3);
             break;
+
+	// brake
 
         case 66: // b
             vehicle.setBrake(brakeForce, 0);
@@ -146,13 +155,19 @@
             vehicle.setBrake(brakeForce, 2);
             vehicle.setBrake(brakeForce, 3);
             break;
+	
+	// right
 
-        case 39: // right
+        case 39: // right arrow
+	case 68: // d
             vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
             vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
             break;
 
-        case 37: // left
+	// left
+
+        case 37: // left arrow
+	case 65: // a
             vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
             vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
             break;
