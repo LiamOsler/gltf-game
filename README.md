@@ -42,10 +42,10 @@ Viewing the game locally using the index.html file requires either CORS being al
 
 ## Details:
 
-### Model/Mesh/Object naming scheme:
-![Model naming scheme](README/naming_slide1.PNG)
-![Mesh naming scheme](README/naming_slide2.PNG)
-![Movement Mesh naming scheme](README/naming_slide3.PNG)
+
+
+### Blender .gltf export settings:
+
 
 ### Basic ```.gltf``` Three Scene setup with low resolution rendering and sharp pixelation:
 
@@ -211,3 +211,8 @@ Results with hemisphere light and fog enabled, no ambient lighting:
 ![Hemisphere Light, Fog Enabled](README/screenshot8.png)
 Results with hemisphere light, no ambient lighting or fog:
 ![Hemisphere Light, Fog Disabled](README/screenshot9.png)
+
+### Model/Mesh/Object naming scheme:
+![Model naming scheme](README/naming_slide1.PNG)
+![Mesh naming scheme](README/naming_slide2.PNG)
+![Movement Mesh naming scheme](README/naming_slide3.PNG)
