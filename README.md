@@ -493,3 +493,63 @@ Moving the wheels around:
         }
     }
 ```
+
+Handling the MovementMesh:
+
+```js
+    if(child.name.search("MovementMeshTerrain") == 0){
+        var shape = new CANNON.Box(new CANNON.Vec3(child.scale.x,child.scale.y,child.scale.z));
+        var boxBody = new CANNON.Body({ mass: 0 });
+        boxBody.addShape(shape);
+        boxBody.position.set(child.position.x,child.position.y,child.position.z);
+        boxBody.quaternion.w = child.quaternion.w;
+        boxBody.quaternion.x = child.quaternion.x;
+        boxBody.quaternion.y = child.quaternion.y;
+        boxBody.quaternion.z = child.quaternion.z;
+        boxBody.updateMassProperties();
+        world.add(boxBody);
+        child.visible = false;
+    } 
+```
+
+Animating these bodies:
+
+```js
+    for(let body of world.bodies){
+        if(body.name == "MovementMeshCar" + car.name){
+            for(let item of car){
+                item.quaternion.copy(body.quaternion);
+                item.rotateX(Math.PI/2);
+                item.position.x = body.position.x;
+                item.position.y = body.position.y;
+                item.position.z = body.position.z;
+            }
+        }
+    }
+```
+
+## Cameras:
+
+### Setting up OrbitControls:
+Orbit controls is useful for being able to preview the model/game area. It allows you to orbit and pan a model by dragging the mouse and using the scroll wheel:
+
+```js
+    const controls = new THREE.OrbitControls( camera, renderer.domElement );
+    controls.update();
+```
+
+
+### Chase camera:
+
+```js
+    function cameraSet(){
+        var relativeCameraOffset = new THREE.Vector3(-20,0,10);
+        var cameraOffset = relativeCameraOffset.applyMatrix4( carCollections[0].matrixWorld );
+
+        camera.position.x = cameraOffset.x;
+        camera.position.y = cameraOffset.y;
+        camera.position.z = cameraOffset.z;
+        camera.lookAt( cube.position );
+    }
+
+```
