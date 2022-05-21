@@ -216,3 +216,153 @@ Results with hemisphere light, no ambient lighting or fog:
 ![Model naming scheme](README/naming_slide1.PNG)
 ![Mesh naming scheme](README/naming_slide2.PNG)
 ![Movement Mesh naming scheme](README/naming_slide3.PNG)
+
+## Physics:
+### cannon.js setup:
+See: https://github.com/schteppe/cannon.js/wiki/Hello-Cannon.js%21
+World:
+```js
+    var world = new CANNON.World();
+    world.broadphase = new CANNON.SAPBroadphase(world);
+    world.gravity.set(0, 0, -10);
+    world.defaultContactMaterial.friction = 0;
+```
+
+Create a plane for the ground: 
+```js
+    var groundBody = new CANNON.Body({
+        mass: 0 // mass: 0 makes the body static
+    });
+    var groundShape = new CANNON.Plane();
+    groundBody.addShape(groundShape);
+    world.addBody(groundBody);
+```
+
+World materials and contact setup:
+```js
+    var groundMaterial = new CANNON.Material("groundMaterial");
+    var wheelMaterial = new CANNON.Material("wheelMaterial");
+    var wheelGroundContactMaterial = window.wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
+        friction: 1.5,
+        restitution: .1,
+        contactEquationStiffness: 1000
+    });
+```
+
+Vehicle physics setup:
+```js
+    var chassisShape;
+    chassisShape = new CANNON.Box(new CANNON.Vec3(2, 1,0.5));
+    var chassisBody = new CANNON.Body({ mass: 500 });
+    chassisBody.addShape(chassisShape);
+    chassisBody.position.set(0, 0, 1);
+
+    vehicle = new CANNON.RaycastVehicle({
+        chassisBody: chassisBody,
+    });
+
+    options.chassisConnectionPointLocal.set(1, 1, 0);
+    vehicle.addWheel(options);
+
+    options.chassisConnectionPointLocal.set(1, -1, 0);
+    vehicle.addWheel(options);
+
+    options.chassisConnectionPointLocal.set(-1, 1, 0);
+    vehicle.addWheel(options);
+
+    options.chassisConnectionPointLocal.set(-1, -1, 0);
+    vehicle.addWheel(options);
+
+    vehicle.addToWorld(world);
+
+    var wheelBodies = [];
+    for(var i=0; i<vehicle.wheelInfos.length; i++){
+        var wheel = vehicle.wheelInfos[i];
+        var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, wheel.radius / 2, 20);
+        var wheelBody = new CANNON.Body({ mass: 1 });
+        var q = new CANNON.Quaternion();
+        q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
+        wheelBody.addShape(cylinderShape, new CANNON.Vec3(), q);
+        wheelBodies.push(wheelBody);
+    }
+
+    world.addEventListener('postStep', function(){
+        for (var i = 0; i < vehicle.wheelInfos.length; i++) {
+            vehicle.updateWheelTransform(i);
+            var t = vehicle.wheelInfos[i].worldTransform;
+            wheelBodies[i].position.copy(t.position);
+            wheelBodies[i].quaternion.copy(t.quaternion);
+        }
+    });
+```
+
+Setup the cannon simulation loop:
+```js
+    var fixedTimeStep = 1.0 / 60.0;
+    var maxSubSteps = 3;
+
+    var lastTime;
+    (function simloop(time){
+    requestAnimationFrame(simloop);
+    if(lastTime !== undefined){
+        var dt = (time - lastTime) / 1000;
+        world.step(fixedTimeStep, dt, maxSubSteps);
+    }
+    lastTime = time;
+    })();
+```
+
+Vehicle controls:
+```js
+    document.onkeydown = handler;
+    document.onkeyup = handler;
+
+    var maxSteerVal = 0.5;
+    var maxForce = 1000;
+    var brakeForce = 1000000;
+    function handler(event){
+        var up = (event.type == 'keyup');
+
+        if(!up && event.type !== 'keydown'){
+            return;
+        }
+
+        vehicle.setBrake(0, 0);
+        vehicle.setBrake(0, 1);
+        vehicle.setBrake(0, 2);
+        vehicle.setBrake(0, 3);
+
+        switch(event.keyCode){
+
+        case 38: // forward
+            vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
+            vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
+            break;
+
+        case 40: // backward
+            vehicle.applyEngineForce(up ? 0 : maxForce, 2);
+            vehicle.applyEngineForce(up ? 0 : maxForce, 3);
+            break;
+
+        case 66: // b
+            vehicle.setBrake(brakeForce, 0);
+            vehicle.setBrake(brakeForce, 1);
+            vehicle.setBrake(brakeForce, 2);
+            vehicle.setBrake(brakeForce, 3);
+            break;
+
+        case 39: // right
+            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
+            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
+            break;
+
+        case 37: // left
+            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
+            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
+            break;
+
+        }
+    }
+```
+
+
