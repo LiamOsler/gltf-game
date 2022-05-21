@@ -204,7 +204,6 @@ Results with ambient lighting disabled:
 Alternatively, similar results can be achieved with hemisphere lighting, giving a more realistic sunlight effect as faces have distinct brightness based on their orientation:
 ```js
     const light = new THREE.HemisphereLight( 0xffeeff, 0x080820, 2 );
-    light.castShadow = true;
     scene.add( light );
 ```
 Results with hemisphere light and fog enabled, no ambient lighting:
