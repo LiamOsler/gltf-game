@@ -34,6 +34,7 @@
 <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
 <script>
+    var date, hours, minutes;
     //Cannon settings:
     var world = new CANNON.World();
     world.broadphase = new CANNON.SAPBroadphase(world);
@@ -259,42 +260,43 @@
         vehicle.setBrake(0, 3);
 
         switch(event.keyCode){
-	    // forward
-	    case 38: // up arrow
-	    case 87: // w
-	    vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
-	    vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
-	  	     break;
+
+	// forward
+    case 38: // up arrow
+	case 87: // w
+            vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
+            vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
+            break;
+
+	// backward
+    case 40: // down arrow
+	case 83: // s
+            vehicle.applyEngineForce(up ? 0 : maxForce, 2);
+            vehicle.applyEngineForce(up ? 0 : maxForce, 3);
+            break;
+
+	// brake
+    case 66: // b
+        vehicle.setBrake(brakeForce, 0);
+        vehicle.setBrake(brakeForce, 1);
+        vehicle.setBrake(brakeForce, 2);
+        vehicle.setBrake(brakeForce, 3);
+        break;
 	
-	        // backward
-	    	case 40: // down arrow
-	    	case 83: // s
-	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 2);
-	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 3);
-	    	     break;
-	
-	    	// brake
-	    	case 66: // b
-	    	    vehicle.setBrake(brakeForce, 0);
-	    	    vehicle.setBrake(brakeForce, 1);
-	    	    vehicle.setBrake(brakeForce, 2);
-	    	    vehicle.setBrake(brakeForce, 3);
-	    	    break;
-	    	      
-	    	// right
-	    	case 39: // right arrow
-	    	case 68: // d
-	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
-	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
-	    	    break;
-	
-	    	// left
-	    	case 37: // left arrow
-	    	case 65: // a
-	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
-	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
-	    	    break;
-	
+	// right
+    case 39: // right arrow
+	case 68: // d
+            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
+            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
+            break;
+
+	// left
+    case 37: // left arrow
+	case 65: // a
+            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
+            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
+            break;
+
         }
 
 
@@ -340,6 +342,7 @@
                     break;
 	        }
 	    }
+    }
 
     var groundBody = new CANNON.Body({
         mass: 0, // mass: 0 makes the body static
@@ -500,6 +503,17 @@
     const pointer = new THREE.Vector2();
 
     function animate() {
+        date = new Date;
+	    minutes = date.getMinutes();
+    	hours = date.getHours();
+    	
+    	if (minutes < 10) {
+    	    minutes = "0" + minutes;
+    	}
+    	
+    	if (hours < 10){
+    	    hours = "0" + hours;
+    	}
 
 
         requestAnimationFrame( animate );
@@ -580,7 +594,7 @@
 
     function onPointerMove( event ) {
 
-	    pointer.x = ( event.clientX / threeDOM.clientWidth / 4)  * 2 - 1;
+	    pointer.x = ( event.clientX / threeDOM.clientWidth / 4 )  * 2 - 1;
 	    pointer.y = - ( event.clientY / threeDOM.clientHeight / 4)  * 2 + 1 ;
 
 
@@ -602,8 +616,8 @@
 
 
     function onMouseDown( event ) {
-	    pointer.x = ( event.clientX / threeDOM.clientWidth / 4)  * 2 - 1;
-	    pointer.y = - ( event.clientY / threeDOM.clientHeight / 4)  * 2 + 1 ;
+	    pointer.x = ( event.clientX / threeDOM.clientWidth / 4 )  * 2 - 1;
+	    pointer.y = - ( event.clientY / threeDOM.clientHeight / 4 )  * 2 + 1 ;
 
 	    raycaster.setFromCamera( pointer, camera );
 	    var intersects = raycaster.intersectObjects( scene.children );
@@ -639,8 +653,8 @@
                 }
                 console.log("hit");
             }
-	    }
-    }
+	    }}
+    
 
 
     function drawCanvas(){
