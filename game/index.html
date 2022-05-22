@@ -218,7 +218,7 @@
             case "select": {
                 setCurrentRoute(route.select);
 
-                console.log(route.asset);
+                // console.log(route.asset);
                 break;
             }
             case "left": {
@@ -381,35 +381,47 @@
     let carList= [
                 {
                     name: "Player",
-                    mass: 5000
+                    mass: 10000
                 },
                 {
-                    name: "Car1",
-                    mass: 5000
+                    name: "Car1Blue",
+                    mass: 10000
                 },
                 {
-                    name: "Car2",
-                    mass: 5000
+                    name: "Car1Green",
+                    mass: 10000
+                },
+                {
+                    name: "Car1Red",
+                    mass: 10000
+                },
+                {
+                    name: "Car2Black",
+                    mass: 10000
+                },
+                {
+                    name: "Car2Blue",
+                    mass: 10000
                 },
                 {
                     name: "Car3",
-                    mass: 5000
+                    mass: 10000
                 },
                 {
                     name: "Car4",
-                    mass: 5000
+                    mass: 10000
                 },
                 {
                     name: "Car5",
-                    mass: 5000
+                    mass: 10000
                 },
                 {
                     name: "Police",
-                    mass: 5000
+                    mass: 10000
                 },
                 {
                     name: "Taxi",
-                    mass: 5000
+                    mass: 10000
                 }
             ];
     let carCollections = [...Array(carList.length)].map(e => Array(0));
@@ -425,7 +437,8 @@
                     let carName = carList[i].name;
                     if(child.name.search("Car" + carName) == 0){
                         carCollections[i].push(child);
-                        carCollections[i].name = carName;
+                        carCollections[i].name = child.name;
+                        console.log(child.name);
                     }
                 }
             }
@@ -435,7 +448,7 @@
                     if(child.name.search("MovementMeshCar" + carName) == 0){
                         var shape = new CANNON.Box(new CANNON.Vec3(child.scale.x,child.scale.y,child.scale.z));
                         var boxBody = new CANNON.Body({ mass: carList[i].mass, material: carMaterial });
-                        boxBody.name = ("MovementMeshCar" + carName);
+                        boxBody.name = (child.name);
                         boxBody.addShape(shape);
                         boxBody.position.set(child.position.x,child.position.y,child.position.z);
                         boxBody.quaternion.w = child.quaternion.w;
@@ -510,6 +523,8 @@
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
 
+    console.log(carCollections);
+
     function animate() {
 	    date = new Date;
 	    minutes = date.getMinutes();
@@ -524,6 +539,7 @@
     	}
 
         requestAnimationFrame( animate );
+        
 
         for(let car of carCollections){
             if(car == carCollections[0]){
@@ -565,17 +581,21 @@
                 }
             }
             else{
-                for(let body of world.bodies){
-                    if(body.name == "MovementMeshCar" + car.name){
-                        for(let item of car){
-                            item.quaternion.copy(body.quaternion);
-                            item.rotateX(Math.PI/2);
+                // console.log(car);
+                for (let clone of car){
+                    console.log(clone);
+                    for(let body of world.bodies){
+                        if(body.name == "MovementMesh" + clone.name){
+                            clone.quaternion.copy(body.quaternion);
+                            clone.rotateX(Math.PI/2);
 
-                            item.position.x = body.position.x;
-                            item.position.y = body.position.y;
-                            item.position.z = body.position.z;
+                            clone.position.x = body.position.x;
+                            clone.position.y = body.position.y;
+                            clone.position.z = body.position.z;
                         }
+
                     }
+
                 }
             }
         }
@@ -608,7 +628,7 @@
 	    var intersects = raycaster.intersectObjects( scene.children );
 
         for(var i = 0; i < buttons.length; i++ ) {
-            console.log("visible");
+            // console.log("visible");
             buttons[i].visible  = false;
         }
 
@@ -657,7 +677,7 @@
                     }
                     break;
                 }
-                console.log("hit");
+                // console.log("hit");
             }
 	    }
     }
@@ -674,7 +694,7 @@
 	    };
 
 	    img.src = route.asset; 
-        console.log(route.asset)
+        // console.log(route.asset)
 
         if (screen.material){
 	    	var tex = new THREE.CanvasTexture( screenCanvas );
