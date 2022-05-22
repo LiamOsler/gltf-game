@@ -6,14 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GLTFLoader</title>
     <style>
+	    @font-face {
+	      font-family: "fc22";
+	      src: url("assets/fc22.ttf");
+	    }
         body { 
             margin: 0;
-	    background-color: black;
+	        background-color: black;
         }
         
         #three-area {
             image-rendering: pixelated;
             zoom: 4;
+	        width: 256px;
+	        height: 224px;
         }
     </style>
 </head>
@@ -119,6 +125,120 @@
         }
     });
 
+    var phone, screen;
+    var toggle = {
+      phone: false, // TODO: this naming is so confusing
+      clock: true,
+    };
+    var buttons = [];
+
+    var screenRoute = {
+        home: { 
+    	    select: "menuChat",
+            cancel: null,
+    	    left: "menuChat",
+    	    right: "menuChat",
+    	    asset: "assets/gui/home.bmp",
+    	    clock: true,
+    	},
+        newMessage: {
+            select: "readMessage",
+            cancel: null,
+            left: "readMessage",
+            right: "readMessage",
+            asset: "assets/gui/newmessage.bmp",
+            clock: true,
+        },
+        menuChat: {
+            select: null,
+            cancel: "home",
+            left: "menuCredit",
+            right: "menuCamera",
+            asset: "assets/gui/menuchat.bmp",
+            clock: false,
+        },
+    	menuCamera: {
+            select: "menuCamera",
+            cancel: "home",
+    	    left: "menuChat",
+    	    right: "menuCredit",
+    	    asset: "assets/gui/menucamera.bmp",
+    	    clock: false,
+    	},
+        menuCredit: {
+	        select: "credit",
+            cancel: "home",
+	        left: "menuCamera",
+	        right: "menuChat",
+	        asset: "assets/gui/menucredit.bmp",
+	        clock: false,
+	    },
+        credit: {
+            select: null,
+            cancel: "menuCredit",
+            left: null,
+            right: null,
+            asset: "assets/gui/credit.bmp",
+            clock: false,
+        }
+    }
+
+    var route = screenRoute.menuCamera;
+
+    function setCurrentRoute(routeName){
+        switch (routeName) {
+            case "home":
+                route = screenRoute.home;
+                break;
+            case "newMessage":
+                route = screenRoute.newMessage;
+                break;
+            case "menuChat":
+                route = screenRoute.menuChat;
+                break;
+            case "menuCamera":
+                route = screenRoute.menuCamera;
+                break;
+            case "menuCredit":
+                route = screenRoute.menuCredit;
+                break;
+            case "credit":
+                route = screenRoute.credit;
+                break;
+        }
+    }
+
+    function changeRoute(key){
+        switch (key){
+            case "select": {
+                setCurrentRoute(route.select);
+
+                console.log(route.asset);
+                break;
+            }
+            case "left": {
+                setCurrentRoute(route.left);
+                break;
+            }
+            case "right": {
+                setCurrentRoute(route.right);
+                break;
+            }
+            case "cancel": {
+                setCurrentRoute(route.cancel);
+                break;
+            }
+        }
+    }
+
+    var screenCanvas = document.createElement("canvas");
+    var ctx = screenCanvas.getContext("2d");
+
+    screenCanvas.width = 84;
+    screenCanvas.height = 48;
+
+    ctx.fillStyle = '#616633'; 
+    ctx.fillRect( 0, 0, screenCanvas.width, screenCanvas.height );
     
     document.onkeydown = handler;
     document.onkeyup = handler;
@@ -139,45 +259,87 @@
         vehicle.setBrake(0, 3);
 
         switch(event.keyCode){
-
-	// forward
-    case 38: // up arrow
-	case 87: // w
-            vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
-            vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
-            break;
-
-	// backward
-    case 40: // down arrow
-	case 83: // s
-            vehicle.applyEngineForce(up ? 0 : maxForce, 2);
-            vehicle.applyEngineForce(up ? 0 : maxForce, 3);
-            break;
-
-	// brake
-    case 66: // b
-        vehicle.setBrake(brakeForce, 0);
-        vehicle.setBrake(brakeForce, 1);
-        vehicle.setBrake(brakeForce, 2);
-        vehicle.setBrake(brakeForce, 3);
-        break;
+	    // forward
+	    case 38: // up arrow
+	    case 87: // w
+	    vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
+	    vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
+	  	     break;
 	
-	// right
-    case 39: // right arrow
-	case 68: // d
-            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
-            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
-            break;
-
-	// left
-    case 37: // left arrow
-	case 65: // a
-            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
-            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
-            break;
-
+	        // backward
+	    	case 40: // down arrow
+	    	case 83: // s
+	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 2);
+	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 3);
+	    	     break;
+	
+	    	// brake
+	    	case 66: // b
+	    	    vehicle.setBrake(brakeForce, 0);
+	    	    vehicle.setBrake(brakeForce, 1);
+	    	    vehicle.setBrake(brakeForce, 2);
+	    	    vehicle.setBrake(brakeForce, 3);
+	    	    break;
+	    	      
+	    	// right
+	    	case 39: // right arrow
+	    	case 68: // d
+	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
+	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
+	    	    break;
+	
+	    	// left
+	    	case 37: // left arrow
+	    	case 65: // a
+	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
+	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
+	    	    break;
+	
         }
-    }
+
+
+	    if(event.type == 'keyup') {
+	        switch(event.keyCode){
+	        	case 32: // show phone
+	        	    if(toggle.phone === false){
+	        	    	phone.visible = false;
+	        	      	toggle.phone = true;
+	        	    } else {
+                        // Checks for possible messages
+                        // if( message )
+                        route = screenRoute.home;
+                        drawCanvas();
+
+	        	    	phone.visible = true;
+	        	      	toggle.phone = false;
+	    	        }
+	    	        break;
+                case 72: // h (phone cancel)
+                    if(toggle.phone === false) {
+                        changeRoute("cancel");
+                        drawCanvas();
+                    }
+                    break;
+                case 74: // j (phone select)
+                    if(toggle.phone === false && route.select !== null) {
+                        changeRoute("select");
+                        drawCanvas();
+                    }
+                    break;
+                case 75: // k (phone left)
+                    if(toggle.phone === false && route.left !== null){
+                        changeRoute("left");
+                        drawCanvas();
+                    }
+                    break;
+                case 76: // l (phone right)
+                    if(toggle.phone === false && route.right !== null) {
+                        changeRoute("right");
+                        drawCanvas();
+                    }
+                    break;
+	        }
+	    }
 
     var groundBody = new CANNON.Body({
         mass: 0, // mass: 0 makes the body static
@@ -333,6 +495,10 @@
     const controls = new THREE.OrbitControls( camera, renderer.domElement );
     controls.update();
 
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
     function animate() {
 
 
@@ -396,7 +562,152 @@
         cameraSet();
         renderer.render( scene, camera );
 
+	    if(phone){
+	        phone.quaternion.copy(camera.quaternion);
+	        phone.position.copy(camera.position);
+	        phone.rotation.copy(camera.rotation);
+	        phone.translateZ( -1.9 );
+	        phone.translateX ( 0.25 );
+	        phone.translateY ( -0.23);
+	    }
+
+	    if( route.clock ){
+	        drawClock();
+	    }
+
+    	renderer.render( scene, camera ); 
     }
+
+    function onPointerMove( event ) {
+
+	    pointer.x = ( event.clientX / threeDOM.clientWidth / 4)  * 2 - 1;
+	    pointer.y = - ( event.clientY / threeDOM.clientHeight / 4)  * 2 + 1 ;
+
+
+	    raycaster.setFromCamera( pointer, camera );
+	    var intersects = raycaster.intersectObjects( scene.children );
+
+        for(var i = 0; i < buttons.length; i++ ) {
+            console.log("visible");
+            buttons[i].visible  = false;
+        }
+
+	    for ( var i = 0; i < intersects.length; i++ ) {
+            var object = intersects[i].object;
+            if (object.name.startsWith("Button")){
+                object.visible = true;
+            }
+	    }
+    }
+
+
+    function onMouseDown( event ) {
+	    pointer.x = ( event.clientX / threeDOM.clientWidth / 4)  * 2 - 1;
+	    pointer.y = - ( event.clientY / threeDOM.clientHeight / 4)  * 2 + 1 ;
+
+	    raycaster.setFromCamera( pointer, camera );
+	    var intersects = raycaster.intersectObjects( scene.children );
+	    for ( var i = 0; i < intersects.length; i++ ) {
+            var name = intersects[i].object.name;
+            if (name.startsWith("Button")){
+
+                switch (name) {
+                case "ButtonCancel":
+                    if(toggle.phone === false) {
+                        changeRoute("cancel");
+                        drawCanvas();
+                    }
+                    break;
+                case "ButtonSelect":
+                    if(toggle.phone === false && route.select !== null) {
+                        changeRoute("select");
+                        drawCanvas();
+                    }
+                    break;
+                case "ButtonLeft":
+                    if(toggle.phone === false && route.left !== null){
+                        changeRoute("left");
+                        drawCanvas();
+                    }
+                    break;
+                case "ButtonRight":
+                    if(toggle.phone === false && route.right !== null) {
+                        changeRoute("right");
+                        drawCanvas();
+                    }
+                    break;
+                }
+                console.log("hit");
+            }
+	    }
+    }
+
+
+    function drawCanvas(){
+        var img = new Image();
+
+        img.onload = function () {
+	        ctx.drawImage(img, 0, 0);
+	        ctx.fillStyle = "rgb(0,0,0,0)";
+	        ctx.fillRect(0, 0, 500, 500);
+
+	    };
+
+	    img.src = route.asset; 
+        console.log(route.asset)
+
+        if (screen.material){
+	    	var tex = new THREE.CanvasTexture( screenCanvas );
+	    	screen.material.map = tex;
+        }
+    }
+
+    function drawClock(){
+	    ctx.fillStyle = "#8F974A";
+
+	    ctx.fillRect(50,0,30,12);
+	    ctx.fillStyle = "#000000";
+	    ctx.font = "8px fc22"
+
+	    ctx.fillText(hours + ":" + minutes, 52, 10);
+
+        var tex = new THREE.CanvasTexture(screenCanvas);
+	    screen.material.map = tex;
+    }
+    
+
+    drawCanvas();
+
+    loader.load("assets/phone.gltf", function (gltf) {
+	    phone = gltf.scene;
+
+	    for(child of phone.children){
+	        if(child.name == "Screen"){
+	    	    screen = child;
+	    	    var texture = new THREE.CanvasTexture( screenCanvas );
+	    	    screen.material.map = texture;
+	        }
+            if(child.name.startsWith("Button")){
+                child.material.transparent = true;
+                child.material.opacity = 0.3; 
+                child.visible = false;
+                buttons.push( child );
+            }
+       }
+
+	    phone.traverse(function (node) {
+	        node.castShadow = true;
+	        node.receiveShadow = true;
+	    })
+
+	    phone.visible = false;
+
+	    scene.add( phone );
+    });
+
+
+    threeDOM.addEventListener( 'mousedown', onMouseDown, false );
+    threeDOM.addEventListener( 'pointermove', onPointerMove );
 
     animate();
 </script>
