@@ -10,7 +10,6 @@
 	      font-family: "fc22";
 	      src: url("assets/fc22.ttf");
 	    }
-
         body { 
             margin: 0;
 	        background-color: black;
@@ -22,12 +21,11 @@
 	        width: 256px;
 	        height: 224px;
         }
-	
     </style>
 </head>
 
 <body>
-  <div id="three-area"></div>
+    <div id="three-area"></div>
 </body>
 
 <script src="scripts/cannon.js"></script>
@@ -36,8 +34,6 @@
 <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
 <script>
-    var date, hours, minutes;
-
     //Cannon settings:
     var world = new CANNON.World();
     world.broadphase = new CANNON.SAPBroadphase(world);
@@ -128,7 +124,6 @@
             wheelBodies[i].quaternion.copy(t.quaternion);
         }
     });
-
 
     var phone, screen;
     var toggle = {
@@ -244,7 +239,6 @@
 
     ctx.fillStyle = '#616633'; 
     ctx.fillRect( 0, 0, screenCanvas.width, screenCanvas.height );
-
     
     document.onkeydown = handler;
     document.onkeyup = handler;
@@ -252,7 +246,6 @@
     var maxSteerVal = 0.5;
     var maxForce = 2000;
     var brakeForce = 10;
-
     function handler(event){
         var up = (event.type == 'keyup');
 
@@ -348,9 +341,6 @@
 	        }
 	    }
 
-
-    }
-
     var groundBody = new CANNON.Body({
         mass: 0, // mass: 0 makes the body static
         material: groundMaterial
@@ -371,7 +361,6 @@
     }
     lastTime = time;
     })();
-
 
 
     //Three settings:
@@ -479,7 +468,7 @@
     scene.add( light );
     // scene.fog = new THREE.Fog(0xffeeff, 1, 100);
 
-    const resolution = {x: 256, y: 224};
+    const resolution = {x: 160, y: 144};
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize( resolution.x, resolution.y );
     renderer.physicallyCorrectLights = true; //Ensures lights match Blender renders
@@ -511,17 +500,7 @@
     const pointer = new THREE.Vector2();
 
     function animate() {
-	    date = new Date;
-	    minutes = date.getMinutes();
-    	hours = date.getHours();
-    	
-    	if (minutes < 10) {
-    	    minutes = "0" + minutes;
-    	}
-    	
-    	if (hours < 10){
-    	    hours = "0" + hours;
-    	}
+
 
         requestAnimationFrame( animate );
 
@@ -581,6 +560,7 @@
         }
 
         cameraSet();
+        renderer.render( scene, camera );
 
 	    if(phone){
 	        phone.quaternion.copy(camera.quaternion);
