@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GLTFLoader</title>
     <style>
+	@font-face {
+	  font-family: "fc22";
+	  src: url("/assets/fc22.ttf");
+	}
+
         body { 
             margin: 0;
 	    background-color: black;
@@ -14,12 +19,15 @@
         #three-area {
             image-rendering: pixelated;
             zoom: 4;
+	    width: 256px;
+	    height: 224px;
         }
+	
     </style>
 </head>
 
 <body>
-    <div id="three-area"></div>
+  <div id="three-area"></div>
 </body>
 
 <script src="scripts/cannon.js"></script>
@@ -28,6 +36,8 @@
 <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
 <script>
+    var date, hours, minutes;
+
     //Cannon settings:
     var world = new CANNON.World();
     world.broadphase = new CANNON.SAPBroadphase(world);
@@ -119,6 +129,39 @@
         }
     });
 
+    var phone, screen;
+    var toggle = {
+      phone: false,
+      clock: true,
+    };
+
+    var screenRoute = [
+	{ 
+	  name: "home",
+	  enter: "menu",
+	  left: null,
+	  right: null,
+	  asset: "assets/gui/home.bmp",
+	  clock: true,
+	},
+	{
+	  name: "menuCamera",
+	  enter: "", // TODO: this to change camera,
+	  left: "menuCredit",
+	  right: "menuCredit",
+	  asset: "assets/gui/menucamera.bmp",
+	  clock: false,
+	},
+	{
+	  name: "menuCredit",
+	  enter: "appCredit",
+	  left: "menuCamera",
+	  right: "menuCamera",
+	  asset: "assets/gui/menucredit.bmp",
+	  clock: false,
+	},
+   ]
+      
     
     document.onkeydown = handler;
     document.onkeyup = handler;
@@ -139,44 +182,59 @@
         vehicle.setBrake(0, 3);
 
         switch(event.keyCode){
-
-	// forward
-    case 38: // up arrow
-	case 87: // w
-            vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
-            vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
-            break;
-
-	// backward
-    case 40: // down arrow
-	case 83: // s
-            vehicle.applyEngineForce(up ? 0 : maxForce, 2);
-            vehicle.applyEngineForce(up ? 0 : maxForce, 3);
-            break;
-
-	// brake
-    case 66: // b
-        vehicle.setBrake(brakeForce, 0);
-        vehicle.setBrake(brakeForce, 1);
-        vehicle.setBrake(brakeForce, 2);
-        vehicle.setBrake(brakeForce, 3);
-        break;
+	    // forward
+	    case 38: // up arrow
+	    case 87: // w
+	    vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
+	    vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
+	  	     break;
 	
-	// right
-    case 39: // right arrow
-	case 68: // d
-            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
-            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
-            break;
+	        // backward
+	    	case 40: // down arrow
+	    	case 83: // s
+	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 2);
+	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 3);
+	    	     break;
+	
+	    	// brake
+	    	case 66: // b
+	    	    vehicle.setBrake(brakeForce, 0);
+	    	    vehicle.setBrake(brakeForce, 1);
+	    	    vehicle.setBrake(brakeForce, 2);
+	    	    vehicle.setBrake(brakeForce, 3);
+	    	    break;
+	    	      
+	    	// right
+	    	case 39: // right arrow
+	    	case 68: // d
+	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
+	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
+	    	    break;
+	
+	    	// left
+	    	case 37: // left arrow
+	    	case 65: // a
+	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
+	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
+	    	    break;
+	
+      }
 
-	// left
-    case 37: // left arrow
-	case 65: // a
-            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
-            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
-            break;
+	if(event.type == 'keydown') {
+	    switch(event.keyCode){
+	    	case 32: // show phone
+	    	    if(toggle.phone === false){
+	    	    	phone.visible = false;
+	    	      	toggle.phone = true;
+	    	    } else {
+	    	    	phone.visible = true;
+	    	      	toggle.phone = false;
+		      }
+		      break;
 
-        }
+	  }
+	  }
+
     }
 
     var groundBody = new CANNON.Body({
@@ -199,6 +257,7 @@
     }
     lastTime = time;
     })();
+
 
 
     //Three settings:
@@ -306,7 +365,7 @@
     scene.add( light );
     // scene.fog = new THREE.Fog(0xffeeff, 1, 100);
 
-    const resolution = {x: 160, y: 144};
+    const resolution = {x: 256, y: 224};
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize( resolution.x, resolution.y );
     renderer.physicallyCorrectLights = true; //Ensures lights match Blender renders
@@ -334,7 +393,17 @@
     controls.update();
 
     function animate() {
-
+	date = new Date;
+	minutes = date.getMinutes();
+    	hours = date.getHours();
+    	
+    	if (minutes < 10) {
+    	    minutes = "0" + minutes;
+    	}
+    	
+    	if (hours < 10){
+    	    hours = "0" + hours;
+    	}
 
         requestAnimationFrame( animate );
 
@@ -394,9 +463,136 @@
         }
 
         cameraSet();
-        renderer.render( scene, camera );
+
+	if(phone){
+	    phone.quaternion.copy(camera.quaternion);
+	    phone.position.copy(camera.position);
+	    phone.rotation.copy(camera.rotation);
+	    phone.translateZ( -1.9 );
+	    phone.translateX ( 0.25 );
+	    phone.translateY ( -0.23);
+	}
+
+	if(toggle.clock){
+	    showClock();
+	}
+
+	renderer.render( scene, camera ); 
 
     }
+
+    //function render() {
+    //    raycaster.setFromCamera( pointer, camera );
+
+    //    const intersects = raycaster.intersectObjects( scene.children );
+
+    //    for ( let i = 0; i < intersects.length; i ++ ) {
+    //    	intersects[ i ].object.material.color.set( 0xff0000 );
+    //    }
+
+
+    //    renderer.render( scene, camera ); 
+
+    //}
+
+    //const raycaster = new THREE.Raycaster();
+    //const pointer = new THREE.Vector2();
+    //
+    //function onPointerMove(event){
+    //    pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    //    pointer.y = - ( event.clientY / window.innerHeight ) * 2 - 1;
+    //}
+
+
+    function changeCanvasScreen(){
+        var img1 = new Image();
+
+        img1.onload = function () {
+	    ctx.drawImage(img1, 0, 0);
+	    ctx.fillStyle = "rgb(0,0,0,0)";
+	    ctx.fillRect(0, 0, 500, 500);
+
+	    ctx.font = "8px fc22"
+
+	    ctx.fillStyle = "#000000";
+	    
+	    ctx.fillText(hours + ":" + minutes, 52, 10);
+	 };
+
+	img1.src = 'assets/gui/home.bmp'; 
+
+    }
+
+    function redrawCanvas(){
+	var img1 = new Image();
+
+	img1.onload = function () {
+	    ctx.drawImage(img1, 0, 0);
+	    ctx.fillStyle = "rgb(0,0,0,0)";
+	    ctx.fillRect(0, 0, 500, 500);
+
+
+	    
+	 };
+
+	img1.src = 'assets/gui/newmessage.bmp'; 
+
+    }
+
+    function showClock(){
+	ctx.fillStyle = "#8F974A";
+
+	ctx.fillRect(50,3,26,8);
+	ctx.fillStyle = "#000000";
+	ctx.font = "8px fc22"
+
+	ctx.fillText(hours + ":" + minutes, 52, 10);
+
+        var tex = new THREE.CanvasTexture(screenCanvas);
+	screen.material.map = tex;
+    }
+    
+    
+    var screenCanvas = document.createElement("canvas");
+    var ctx = screenCanvas.getContext("2d");
+
+    screenCanvas.width = 84;
+    screenCanvas.height = 48;
+
+    ctx.fillStyle = '#616633'; 
+    ctx.fillRect( 0, 0, screenCanvas.width, screenCanvas.height );
+
+    changeCanvasScreen();
+
+
+    loader.load("assets/phone.gltf", function (gltf) {
+
+	phone = gltf.scene;
+
+	for(child of phone.children){
+	    if(child.name == "Screen"){
+		screen = child;
+		var tex = new THREE.CanvasTexture(screenCanvas);
+		screen.material.map = tex;
+	      }
+	  }
+
+	phone.traverse(function (node) {
+
+	    node.castShadow = true;
+	    node.receiveShadow = true;
+	    
+	})
+
+	scene.add(phone);
+    });
+
+
+    // window.addEventListener( 'pointermove', onPointerMove );
+    // window.requestAnimationFrame(render);
+
+
+
 
     animate();
 </script>
