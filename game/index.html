@@ -129,39 +129,111 @@
         }
     });
 
+
     var phone, screen;
     var toggle = {
-      phone: false,
+      phone: false, // TODO: this naming is so confusing
       clock: true,
     };
 
-    var screenRoute = [
-	{ 
-	  name: "home",
-	  enter: "menu",
-	  left: null,
-	  right: null,
-	  asset: "assets/gui/home.bmp",
-	  clock: true,
-	},
-	{
-	  name: "menuCamera",
-	  enter: "", // TODO: this to change camera,
-	  left: "menuCredit",
-	  right: "menuCredit",
-	  asset: "assets/gui/menucamera.bmp",
-	  clock: false,
-	},
-	{
-	  name: "menuCredit",
-	  enter: "appCredit",
-	  left: "menuCamera",
-	  right: "menuCamera",
-	  asset: "assets/gui/menucredit.bmp",
-	  clock: false,
-	},
-   ]
-      
+    var screenRoute = {
+        home: { 
+    	  enter: "menuCamera",
+    	  left: null,
+    	  right: null,
+    	  asset: "assets/gui/home.bmp",
+    	  clock: true,
+    	},
+        newMessage: {
+            enter: "readMessage",
+            left: null,
+            right: null,
+            asset: "assets/gui/newmessage.bmp",
+            clock: true,
+        },
+        menuChat: {
+            enter: null,
+            left: "menuCredit",
+            right: "menuCamera",
+            asset: "assets/gui/menuchat.bmp",
+            clock: false,
+        },
+    	menuCamera: {
+            enter: "menuCamera",
+    	    left: "menuCredit",
+    	    right: "menuCredit",
+    	    asset: "assets/gui/menucamera.bmp",
+    	    clock: false,
+    	},
+        menuCredit: {
+	        enter: "credit",
+	        left: "menuCamera",
+	        right: "menuCamera",
+	        asset: "assets/gui/menucredit.bmp",
+	        clock: false,
+	    },
+        credit: {
+            enter: null,
+            left: null,
+            right: null,
+            asset: "assets/gui/credit.bmp",
+            clock: false,
+        }
+    }
+
+    var route = screenRoute.menuCamera;
+
+    function setCurrentRoute(routeName){
+        switch (routeName) {
+            case "home":
+                route = screenRoute.home;
+                break;
+            case "newMessage":
+                route = screenRoute.newMessage;
+                break;
+            case "menuChat":
+                route = screenRoute.menuChat;
+                break;
+            case "menuCamera":
+                route = screenRoute.menuCamera;
+                break;
+            case "menuCredit":
+                route = screenRoute.menuCredit;
+                break;
+            case "credit":
+                route = screenRoute.credit;
+                break;
+        }
+    }
+
+    function changeRoute(key){
+        switch (key){
+            case "enter": {
+                setCurrentRoute(route.enter);
+
+                console.log(route.asset);
+            }
+            case "left": {
+                setCurrentRoute(route.left);
+            }
+            case "right": {
+                setCurrentRoute(route.right);
+            }
+            case "back": {
+                setCurrentRoute("home");
+            }
+        }
+    }
+
+    var screenCanvas = document.createElement("canvas");
+    var ctx = screenCanvas.getContext("2d");
+
+    screenCanvas.width = 84;
+    screenCanvas.height = 48;
+
+    ctx.fillStyle = '#616633'; 
+    ctx.fillRect( 0, 0, screenCanvas.width, screenCanvas.height );
+
     
     document.onkeydown = handler;
     document.onkeyup = handler;
@@ -169,6 +241,7 @@
     var maxSteerVal = 0.5;
     var maxForce = 2000;
     var brakeForce = 10;
+
     function handler(event){
         var up = (event.type == 'keyup');
 
@@ -218,22 +291,52 @@
 	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
 	    	    break;
 	
-      }
+        }
 
-	if(event.type == 'keydown') {
-	    switch(event.keyCode){
-	    	case 32: // show phone
-	    	    if(toggle.phone === false){
-	    	    	phone.visible = false;
-	    	      	toggle.phone = true;
-	    	    } else {
-	    	    	phone.visible = true;
-	    	      	toggle.phone = false;
-		      }
-		      break;
 
-	  }
-	  }
+	    if(event.type == 'keyup') {
+	        switch(event.keyCode){
+	        	case 32: // show phone
+	        	    if(toggle.phone === false){
+	        	    	phone.visible = false;
+	        	      	toggle.phone = true;
+	        	    } else {
+                        // Checks for possible messages
+                        // if( message )
+                        route = screenRoute.home;
+                        drawCanvas();
+
+	        	    	phone.visible = true;
+	        	      	toggle.phone = false;
+	    	        }
+	    	        break;
+                case 72: // h (phone back)
+                    if(toggle.phone === false) {
+                        changeRoute("back");
+                        drawCanvas();
+                    }
+                    break;
+                case 74: // j (phone enter)
+                    if(toggle.phone === false && route.enter !== null) {
+                        changeRoute("enter");
+                        drawCanvas();
+                    }
+                    break;
+                case 75: // k (phone left)
+                    if(toggle.phone === false && route.left !== null){
+                        changeRoute("left");
+                        drawCanvas();
+                    }
+                    break;
+                case 76: // l (phone right)
+                    if(toggle.phone === false && route.right !== null) {
+                        changeRoute("right");
+                        drawCanvas();
+                    }
+                    break;
+	        }
+	    }
+
 
     }
 
@@ -392,9 +495,12 @@
     const controls = new THREE.OrbitControls( camera, renderer.domElement );
     controls.update();
 
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
     function animate() {
-	date = new Date;
-	minutes = date.getMinutes();
+	    date = new Date;
+	    minutes = date.getMinutes();
     	hours = date.getHours();
     	
     	if (minutes < 10) {
@@ -464,132 +570,99 @@
 
         cameraSet();
 
-	if(phone){
-	    phone.quaternion.copy(camera.quaternion);
-	    phone.position.copy(camera.position);
-	    phone.rotation.copy(camera.rotation);
-	    phone.translateZ( -1.9 );
-	    phone.translateX ( 0.25 );
-	    phone.translateY ( -0.23);
-	}
+	    if(phone){
+	        phone.quaternion.copy(camera.quaternion);
+	        phone.position.copy(camera.position);
+	        phone.rotation.copy(camera.rotation);
+	        phone.translateZ( -1.9 );
+	        phone.translateX ( 0.25 );
+	        phone.translateY ( -0.23);
+	    }
 
-	if(toggle.clock){
-	    showClock();
-	}
+	    if( route.clock ){
+	        drawClock();
+	    }
 
-	renderer.render( scene, camera ); 
+        raycaster.setFromCamera( pointer, camera );
 
+        const intersects = raycaster.intersectObjects( scene.children );
+
+        for ( let i = 0; i < intersects.length; i ++ ) {
+            if( intersects[ i ].object.name == "ButtonBack" ){
+                console.log(intersects[i].object.name);
+           	    intersects[ i ].object.material.color.set( 0xff0000 );
+            }
+        }
+
+    	renderer.render( scene, camera ); 
     }
 
-    //function render() {
-    //    raycaster.setFromCamera( pointer, camera );
 
-    //    const intersects = raycaster.intersectObjects( scene.children );
-
-    //    for ( let i = 0; i < intersects.length; i ++ ) {
-    //    	intersects[ i ].object.material.color.set( 0xff0000 );
-    //    }
+    function onPointerMove(event){
+        pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        pointer.y = - ( event.clientY / window.innerHeight ) * 2 - 1;
+    }
 
 
-    //    renderer.render( scene, camera ); 
 
-    //}
+    function drawCanvas(){
+        var img = new Image();
 
-    //const raycaster = new THREE.Raycaster();
-    //const pointer = new THREE.Vector2();
-    //
-    //function onPointerMove(event){
-    //    pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    //    pointer.y = - ( event.clientY / window.innerHeight ) * 2 - 1;
-    //}
+        img.onload = function () {
+	        ctx.drawImage(img, 0, 0);
+	        ctx.fillStyle = "rgb(0,0,0,0)";
+	        ctx.fillRect(0, 0, 500, 500);
 
+	    };
 
-    function changeCanvasScreen(){
-        var img1 = new Image();
+	    img.src = route.asset; 
+        console.log(route.asset)
 
-        img1.onload = function () {
-	    ctx.drawImage(img1, 0, 0);
-	    ctx.fillStyle = "rgb(0,0,0,0)";
-	    ctx.fillRect(0, 0, 500, 500);
+        if (screen.material){
+	    	var tex = new THREE.CanvasTexture( screenCanvas );
+	    	screen.material.map = tex;
+        }
+    }
 
+    function drawClock(){
+	    ctx.fillStyle = "#8F974A";
+
+	    ctx.fillRect(50,0,30,12);
+	    ctx.fillStyle = "#000000";
 	    ctx.font = "8px fc22"
 
-	    ctx.fillStyle = "#000000";
-	    
 	    ctx.fillText(hours + ":" + minutes, 52, 10);
-	 };
-
-	img1.src = 'assets/gui/home.bmp'; 
-
-    }
-
-    function redrawCanvas(){
-	var img1 = new Image();
-
-	img1.onload = function () {
-	    ctx.drawImage(img1, 0, 0);
-	    ctx.fillStyle = "rgb(0,0,0,0)";
-	    ctx.fillRect(0, 0, 500, 500);
-
-
-	    
-	 };
-
-	img1.src = 'assets/gui/newmessage.bmp'; 
-
-    }
-
-    function showClock(){
-	ctx.fillStyle = "#8F974A";
-
-	ctx.fillRect(50,3,26,8);
-	ctx.fillStyle = "#000000";
-	ctx.font = "8px fc22"
-
-	ctx.fillText(hours + ":" + minutes, 52, 10);
 
         var tex = new THREE.CanvasTexture(screenCanvas);
-	screen.material.map = tex;
+	    screen.material.map = tex;
     }
     
-    
-    var screenCanvas = document.createElement("canvas");
-    var ctx = screenCanvas.getContext("2d");
 
-    screenCanvas.width = 84;
-    screenCanvas.height = 48;
-
-    ctx.fillStyle = '#616633'; 
-    ctx.fillRect( 0, 0, screenCanvas.width, screenCanvas.height );
-
-    changeCanvasScreen();
-
+    drawCanvas();
 
     loader.load("assets/phone.gltf", function (gltf) {
+	    phone = gltf.scene;
 
-	phone = gltf.scene;
+	    for(child of phone.children){
+	        if(child.name == "Screen"){
+	    	    screen = child;
+	    	    var tex = new THREE.CanvasTexture( screenCanvas );
+	    	    screen.material.map = tex;
+	            }
+       }
 
-	for(child of phone.children){
-	    if(child.name == "Screen"){
-		screen = child;
-		var tex = new THREE.CanvasTexture(screenCanvas);
-		screen.material.map = tex;
-	      }
-	  }
+	    phone.traverse(function (node) {
+	        node.castShadow = true;
+	        node.receiveShadow = true;
+	    })
 
-	phone.traverse(function (node) {
+	    phone.visible = false;
 
-	    node.castShadow = true;
-	    node.receiveShadow = true;
-	    
-	})
-
-	scene.add(phone);
+	    scene.add( phone );
     });
 
 
-    // window.addEventListener( 'pointermove', onPointerMove );
-    // window.requestAnimationFrame(render);
+    window.addEventListener( 'pointermove', onPointerMove );
 
 
 
