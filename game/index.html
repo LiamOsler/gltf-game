@@ -260,42 +260,43 @@
         vehicle.setBrake(0, 3);
 
         switch(event.keyCode){
-	    // forward
-	    case 38: // up arrow
-	    case 87: // w
-	    vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
-	    vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
-	  	     break;
+
+	// forward
+    case 38: // up arrow
+	case 87: // w
+            vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
+            vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
+            break;
+
+	// backward
+    case 40: // down arrow
+	case 83: // s
+            vehicle.applyEngineForce(up ? 0 : maxForce, 2);
+            vehicle.applyEngineForce(up ? 0 : maxForce, 3);
+            break;
+
+	// brake
+    case 66: // b
+        vehicle.setBrake(brakeForce, 0);
+        vehicle.setBrake(brakeForce, 1);
+        vehicle.setBrake(brakeForce, 2);
+        vehicle.setBrake(brakeForce, 3);
+        break;
 	
-	        // backward
-	    	case 40: // down arrow
-	    	case 83: // s
-	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 2);
-	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 3);
-	    	     break;
-	
-	    	// brake
-	    	case 66: // b
-	    	    vehicle.setBrake(brakeForce, 0);
-	    	    vehicle.setBrake(brakeForce, 1);
-	    	    vehicle.setBrake(brakeForce, 2);
-	    	    vehicle.setBrake(brakeForce, 3);
-	    	    break;
-	    	      
-	    	// right
-	    	case 39: // right arrow
-	    	case 68: // d
-	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
-	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
-	    	    break;
-	
-	    	// left
-	    	case 37: // left arrow
-	    	case 65: // a
-	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
-	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
-	    	    break;
-	
+	// right
+    case 39: // right arrow
+	case 68: // d
+            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
+            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
+            break;
+
+	// left
+    case 37: // left arrow
+	case 65: // a
+            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
+            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
+            break;
+
         }
 
 
@@ -470,7 +471,7 @@
     scene.add( light );
     // scene.fog = new THREE.Fog(0xffeeff, 1, 100);
 
-    const resolution = {x: 256, y: 224};
+    const resolution = {x: 160, y: 144};
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize( resolution.x, resolution.y );
     renderer.physicallyCorrectLights = true; //Ensures lights match Blender renders
