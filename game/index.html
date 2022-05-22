@@ -13,14 +13,14 @@
 
         body { 
             margin: 0;
-	    background-color: black;
+	        background-color: black;
         }
         
         #three-area {
             image-rendering: pixelated;
             zoom: 4;
-	    width: 256px;
-	    height: 224px;
+	        width: 256px;
+	        height: 224px;
         }
 	
     </style>
@@ -135,45 +135,52 @@
       phone: false, // TODO: this naming is so confusing
       clock: true,
     };
+    var buttons = [];
 
     var screenRoute = {
         home: { 
-    	  enter: "menuCamera",
-    	  left: null,
-    	  right: null,
-    	  asset: "assets/gui/home.bmp",
-    	  clock: true,
+    	    select: "menuChat",
+            cancel: null,
+    	    left: null,
+    	    right: null,
+    	    asset: "assets/gui/home.bmp",
+    	    clock: true,
     	},
         newMessage: {
-            enter: "readMessage",
+            select: "readMessage",
+            cancel: null,
             left: null,
             right: null,
             asset: "assets/gui/newmessage.bmp",
             clock: true,
         },
         menuChat: {
-            enter: null,
+            select: null,
+            cancel: "home",
             left: "menuCredit",
             right: "menuCamera",
             asset: "assets/gui/menuchat.bmp",
             clock: false,
         },
     	menuCamera: {
-            enter: "menuCamera",
-    	    left: "menuCredit",
+            select: "menuCamera",
+            cancel: "home",
+    	    left: "menuChat",
     	    right: "menuCredit",
     	    asset: "assets/gui/menucamera.bmp",
     	    clock: false,
     	},
         menuCredit: {
-	        enter: "credit",
+	        select: "credit",
+            cancel: "home",
 	        left: "menuCamera",
-	        right: "menuCamera",
+	        right: "menuChat",
 	        asset: "assets/gui/menucredit.bmp",
 	        clock: false,
 	    },
         credit: {
-            enter: null,
+            select: null,
+            cancel: "menuCredit",
             left: null,
             right: null,
             asset: "assets/gui/credit.bmp",
@@ -208,19 +215,23 @@
 
     function changeRoute(key){
         switch (key){
-            case "enter": {
-                setCurrentRoute(route.enter);
+            case "select": {
+                setCurrentRoute(route.select);
 
                 console.log(route.asset);
+                break;
             }
             case "left": {
                 setCurrentRoute(route.left);
+                break;
             }
             case "right": {
                 setCurrentRoute(route.right);
+                break;
             }
-            case "back": {
-                setCurrentRoute("home");
+            case "cancel": {
+                setCurrentRoute(route.cancel);
+                break;
             }
         }
     }
@@ -310,15 +321,15 @@
 	        	      	toggle.phone = false;
 	    	        }
 	    	        break;
-                case 72: // h (phone back)
+                case 72: // h (phone cancel)
                     if(toggle.phone === false) {
-                        changeRoute("back");
+                        changeRoute("cancel");
                         drawCanvas();
                     }
                     break;
-                case 74: // j (phone enter)
-                    if(toggle.phone === false && route.enter !== null) {
-                        changeRoute("enter");
+                case 74: // j (phone select)
+                    if(toggle.phone === false && route.select !== null) {
+                        changeRoute("select");
                         drawCanvas();
                     }
                     break;
@@ -495,6 +506,7 @@
     const controls = new THREE.OrbitControls( camera, renderer.domElement );
     controls.update();
 
+
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
 
@@ -583,26 +595,72 @@
 	        drawClock();
 	    }
 
-        raycaster.setFromCamera( pointer, camera );
-
-        const intersects = raycaster.intersectObjects( scene.children );
-
-        for ( let i = 0; i < intersects.length; i ++ ) {
-            if( intersects[ i ].object.name == "ButtonBack" ){
-                console.log(intersects[i].object.name);
-           	    intersects[ i ].object.material.color.set( 0xff0000 );
-            }
-        }
-
     	renderer.render( scene, camera ); 
     }
 
+    function onPointerMove( event ) {
 
-    function onPointerMove(event){
-        pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        pointer.y = - ( event.clientY / window.innerHeight ) * 2 - 1;
+	    pointer.x = ( event.clientX / threeDOM.clientWidth / 4)  * 2 - 1;
+	    pointer.y = - ( event.clientY / threeDOM.clientHeight / 4)  * 2 + 1 ;
+
+
+	    raycaster.setFromCamera( pointer, camera );
+	    var intersects = raycaster.intersectObjects( scene.children );
+
+        for(var i = 0; i < buttons.length; i++ ) {
+            console.log("visible");
+            buttons[i].visible  = false;
+        }
+
+	    for ( var i = 0; i < intersects.length; i++ ) {
+            var object = intersects[i].object;
+            if (object.name.startsWith("Button")){
+                object.visible = true;
+            }
+	    }
     }
 
+
+    function onMouseDown( event ) {
+	    pointer.x = ( event.clientX / threeDOM.clientWidth / 4)  * 2 - 1;
+	    pointer.y = - ( event.clientY / threeDOM.clientHeight / 4)  * 2 + 1 ;
+
+	    raycaster.setFromCamera( pointer, camera );
+	    var intersects = raycaster.intersectObjects( scene.children );
+	    for ( var i = 0; i < intersects.length; i++ ) {
+            var name = intersects[i].object.name;
+            if (name.startsWith("Button")){
+
+                switch (name) {
+                case "ButtonCancel":
+                    if(toggle.phone === false) {
+                        changeRoute("cancel");
+                        drawCanvas();
+                    }
+                    break;
+                case "ButtonSelect":
+                    if(toggle.phone === false && route.select !== null) {
+                        changeRoute("select");
+                        drawCanvas();
+                    }
+                    break;
+                case "ButtonLeft":
+                    if(toggle.phone === false && route.left !== null){
+                        changeRoute("left");
+                        drawCanvas();
+                    }
+                    break;
+                case "ButtonRight":
+                    if(toggle.phone === false && route.right !== null) {
+                        changeRoute("right");
+                        drawCanvas();
+                    }
+                    break;
+                }
+                console.log("hit");
+            }
+	    }
+    }
 
 
     function drawCanvas(){
@@ -646,9 +704,15 @@
 	    for(child of phone.children){
 	        if(child.name == "Screen"){
 	    	    screen = child;
-	    	    var tex = new THREE.CanvasTexture( screenCanvas );
-	    	    screen.material.map = tex;
-	            }
+	    	    var texture = new THREE.CanvasTexture( screenCanvas );
+	    	    screen.material.map = texture;
+	        }
+            if(child.name.startsWith("Button")){
+                child.material.transparent = true;
+                child.material.opacity = 0.3; 
+                child.visible = false;
+                buttons.push( child );
+            }
        }
 
 	    phone.traverse(function (node) {
@@ -662,10 +726,8 @@
     });
 
 
-    window.addEventListener( 'pointermove', onPointerMove );
-
-
-
+    threeDOM.addEventListener( 'mousedown', onMouseDown, false );
+    threeDOM.addEventListener( 'pointermove', onPointerMove );
 
     animate();
 </script>
