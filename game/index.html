@@ -69,13 +69,14 @@
 
 
     var chassisShape;
-    chassisShape = new CANNON.Box(new CANNON.Vec3(2.65, 1.5,.5));
-    var chassisBody = new CANNON.Body({ mass: 500 });
+    chassisShape = new CANNON.Box(new CANNON.Vec3(2.5, 1.5, 1));
+    var chassisBody = new CANNON.Body({ mass: 1000 });
     chassisBody.addShape(chassisShape);
-    chassisBody.position.set(0, 0, 10);
+    chassisBody.position.set(0, 4, 10);
+
 
     var options = {
-                    radius: 10,
+                    radius: 1,
                     directionLocal: new CANNON.Vec3(0, 0, -1),
                     suspensionStiffness: 43,
                     suspensionRestLength: 0.4,
@@ -95,16 +96,16 @@
         chassisBody: chassisBody,
     });
 
-    options.chassisConnectionPointLocal.set(2, 1.24, .3);
+    options.chassisConnectionPointLocal.set(2, 1.24, 0);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(2, -1.24, .3);
+    options.chassisConnectionPointLocal.set(2, -1.24, 0);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(-1.85, 1.3, .3);
+    options.chassisConnectionPointLocal.set(-1.85, 1.3, 0);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(-1.85, -1.3, .3);
+    options.chassisConnectionPointLocal.set(-1.85, -1.3, 0);
     vehicle.addWheel(options);
 
     vehicle.addToWorld(world);
@@ -112,7 +113,7 @@
     var wheelBodies = [];
     for(var i=0; i<vehicle.wheelInfos.length; i++){
         var wheel = vehicle.wheelInfos[i];
-        var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, .5, 20);
+        var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, 1, 20);
         var wheelBody = new CANNON.Body({ mass: 10 });
         var q = new CANNON.Quaternion();
         q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
@@ -250,7 +251,7 @@
     document.onkeyup = handler;
 
     var maxSteerVal = 0.5;
-    var maxForce = 2000;
+    var maxForce = 4000;
     var brakeForce = 10;
 
     function handler(event){
@@ -404,15 +405,51 @@
                     mass: 10000
                 },
                 {
-                    name: "Car3",
+                    name: "Car2Red",
                     mass: 10000
                 },
                 {
-                    name: "Car4",
+                    name: "Car3Blue",
                     mass: 10000
                 },
                 {
-                    name: "Car5",
+                    name: "Car3Green",
+                    mass: 10000
+                },
+                {
+                    name: "Car3Red",
+                    mass: 10000
+                },
+                {
+                    name: "Car3Yellow",
+                    mass: 10000
+                },
+                {
+                    name: "Car4Black",
+                    mass: 10000
+                },
+                {
+                    name: "Car4Blue",
+                    mass: 10000
+                },
+                {
+                    name: "Car4Gold",
+                    mass: 10000
+                },
+                {
+                    name: "Car4White",
+                    mass: 10000
+                },
+                {
+                    name: "Car5Black",
+                    mass: 10000
+                },
+                {
+                    name: "Car5Green",
+                    mass: 10000
+                },
+                {
+                    name: "Car5Red",
                     mass: 10000
                 },
                 {
@@ -490,7 +527,7 @@
 
     const light = new THREE.HemisphereLight( 0xffeeff, 0x080820, 2 );
     scene.add( light );
-    // scene.fog = new THREE.Fog(0xffeeff, 1, 100);
+    scene.fog = new THREE.Fog(0xffeeff, 1, 200);
 
     const resolution = {x: 256, y: 224};
     const renderer = new THREE.WebGLRenderer();
@@ -507,7 +544,7 @@
 
     function cameraSet(){
         let playerMesh = carCollections[0][0];
-        var relativeCameraOffset = new THREE.Vector3(-20,0,10);
+        var relativeCameraOffset = new THREE.Vector3(-20,0,5);
         var cameraOffset = relativeCameraOffset.applyMatrix4( playerMesh.matrixWorld );
 
         camera.position.x = cameraOffset.x;
@@ -516,14 +553,13 @@
         camera.lookAt( playerMesh.position );
     }
 
-    const controls = new THREE.OrbitControls( camera, renderer.domElement );
-    controls.update();
+    // const controls = new THREE.OrbitControls( camera, renderer.domElement );
+    // controls.update();
 
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
 
-    console.log(carCollections);
 
     function animate() {
 	    date = new Date;
@@ -581,9 +617,7 @@
                 }
             }
             else{
-                // console.log(car);
                 for (let clone of car){
-                    console.log(clone);
                     for(let body of world.bodies){
                         if(body.name == "MovementMesh" + clone.name){
                             clone.quaternion.copy(body.quaternion);
