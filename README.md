@@ -37,7 +37,11 @@ https://kenney.nl/assets/retro-urban-kit
 Retro PSX Style Tree Pack (Elegant Crow):
 https://elegantcrow.itch.io/psx-retro-style-tree-pack
 
+Ps1 style industrial buildings (miziziziz)
+https://nartier.itch.io/ps1-style-industrial-buildings
+
 ## Notes / Requirements:
+
 Viewing the game locally using the index.html file requires either CORS being allowed by the browser (alternatively, host the repo locally with http)
 
 ## Details:
