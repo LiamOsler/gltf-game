@@ -72,7 +72,7 @@
     chassisShape = new CANNON.Box(new CANNON.Vec3(2.5, 1.5, 1));
     var chassisBody = new CANNON.Body({ mass: 1000 });
     chassisBody.addShape(chassisShape);
-    chassisBody.position.set(0, 4, 10);
+    chassisBody.position.set(0, 0, 10);
 
 
     var options = {
@@ -270,39 +270,46 @@
 	    // forward
 	    case 38: // up arrow
 	    case 87: // w
-	    vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
-	    vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
-	  	     break;
-	
-	        // backward
-	    	case 40: // down arrow
-	    	case 83: // s
-	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 2);
-	    	     vehicle.applyEngineForce(up ? 0 : maxForce, 3);
-	    	     break;
-	
-	    	// brake
-	    	case 66: // b
-	    	    vehicle.setBrake(brakeForce, 0);
-	    	    vehicle.setBrake(brakeForce, 1);
-	    	    vehicle.setBrake(brakeForce, 2);
-	    	    vehicle.setBrake(brakeForce, 3);
-	    	    break;
-	    	      
-	    	// right
-	    	case 39: // right arrow
-	    	case 68: // d
-	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
-	    	    vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
-	    	    break;
-	
-	    	// left
-	    	case 37: // left arrow
-	    	case 65: // a
-	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
-	    	    vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
-	    	    break;
-	
+            vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
+            vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
+        break;
+
+        // backward
+        case 40: // down arrow
+        case 83: // s
+            vehicle.applyEngineForce(up ? 0 : maxForce, 2);
+            vehicle.applyEngineForce(up ? 0 : maxForce, 3);
+        break;
+
+        // brake
+        case 66: // b
+            vehicle.setBrake(brakeForce, 0);
+            vehicle.setBrake(brakeForce, 1);
+            vehicle.setBrake(brakeForce, 2);
+            vehicle.setBrake(brakeForce, 3);
+        break;
+                
+        // right
+        case 39: // right arrow
+        case 68: // d
+            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 0);
+            vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 1);
+        break;
+
+        // left
+        case 37: // left arrow
+        case 65: // a
+            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 0);
+            vehicle.setSteeringValue(up ? 0 : maxSteerVal, 1);
+        break;
+
+        case 82:
+            vehicle.chassisBody.quaternion.set(0,0, vehicle.chassisBody.quaternion.z,1);
+            vehicle.chassisBody.velocity.set(0,0,0);
+            vehicle.chassisBody.angularVelocity.set(0,0,0);
+
+            console.log(vehicle);
+        break;
         }
 
 
@@ -537,14 +544,14 @@
     renderer.shadowMap.enabled = true;
     threeDOM.appendChild( renderer.domElement );
 
-    const camera = new THREE.PerspectiveCamera( 90, resolution.x/resolution.y, 2, 1000 );
+    const camera = new THREE.PerspectiveCamera( 90, resolution.x/resolution.y, 1, 1000 );
     camera.up.set( 0, 0, 1 );
     camera.position.set( 12, 12, 10 );
     camera.lookAt( 0, 0, 0 );
 
     function cameraSet(){
-        let playerMesh = carCollections[0][0];
-        var relativeCameraOffset = new THREE.Vector3(-8,0,3);
+        let playerMesh = carCollections[0][2];
+        var relativeCameraOffset = new THREE.Vector3(-10,0,3);
         var cameraOffset = relativeCameraOffset.applyMatrix4( playerMesh.matrixWorld );
 
         camera.position.x = cameraOffset.x;
@@ -584,6 +591,23 @@
                     item.position.x = vehicle.chassisBody.position.x;
                     item.position.y = vehicle.chassisBody.position.y;
                     item.position.z = vehicle.chassisBody.position.z;
+
+                    if(item.name == "CarPlayerHeadlightL"){
+                        item.translateX(3);
+                        item.translateY(.5);
+                        item.translateZ(1);
+                        item.rotateY(-Math.PI/2);
+
+                    }
+                    if(item.name == "CarPlayerHeadlightR"){
+                        item.translateX(3);
+                        item.translateY(-.5);
+                        item.translateZ(1);
+                        item.rotateY(-Math.PI/2);
+
+
+                    }
+
 
                     if(item.name == "CarPlayerWheel1"){
                         item.quaternion.copy(wheelBodies[0].quaternion);
