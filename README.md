@@ -2,13 +2,15 @@
 
 Development repository for itch.io Mini Jame Gam #10
 
+GitHub Pages
+
 ## Collaborators:
 - [Liam Osler](http://github.com/liamosler)
 - [Brian Wo](http://github.com/brainwo)
 
 ## Description:
 
-It's a game?
+Web-based rally racing game dev
 
 ## Libraries and Assets:
 
