@@ -2,7 +2,7 @@
 
 Development repository for itch.io Mini Jame Gam #10
 
-GitHub Pages
+[GitHub Pages Docs](https://brainwo.github.io/breakreality/)
 
 ## Collaborators:
 - [Liam Osler](http://github.com/liamosler)
