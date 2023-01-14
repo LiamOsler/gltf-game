@@ -10,7 +10,7 @@ Development repository for itch.io Mini Jame Gam #10
 
 ## Description:
 
-Web-based rally racing game dev
+Web-based rally racing game dev built using Three.js and Cannon.js
 
 ## Libraries and Assets:
 
